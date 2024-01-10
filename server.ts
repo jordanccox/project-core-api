@@ -1,1 +1,3 @@
-console.log(process.env.TEST)
+import express = require('express');
+import mongoose = require('mongoose');
+
