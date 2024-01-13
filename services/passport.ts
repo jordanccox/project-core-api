@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import passport = require('passport');
-import LocalStrategy = require('passport-local');
+import { Strategy as LocalStrategy } from 'passport-local';
+import UserModel from '../models/user';
+import { UserWithValidation } from '../types/user.interface';
 
 declare global {
   namespace Express {
@@ -25,3 +27,19 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((user: Express.User, done) => {
   process.nextTick(() => done(null, user));
 });
+
+passport.use(
+  new LocalStrategy(async (email, password, done) => {
+    const user = (await UserModel.findOne({ email })) as UserWithValidation;
+
+    if (!user) return done(null, false);
+
+    const validPassword = await user.validatePassword(password);
+
+    if (validPassword) {
+      return done(null, user);
+    }
+
+    return done(null, false);
+  }),
+);
