@@ -66,8 +66,7 @@ router.get('/create-test-user', async (req, res) => {
     },
   });
 
-  // eslint-disable-next-line @typescript-eslint/await-thenable
-  await user.setPassword('mypassword');
+  user.hash = await user.setPassword('mypassword');
   await user.save();
   res.end();
 });

@@ -22,7 +22,7 @@ interface IUser {
 }
 
 interface IUserMethods {
-  setPassword(password: string): void;
+  setPassword(password: string): Promise<string>;
   validatePassword(password: string): Promise<boolean>;
 }
 
@@ -44,7 +44,8 @@ const UserSchema = new Schema({
 });
 
 UserSchema.methods.setPassword = async function (password: string) {
-  this.hash = await secure.hashPassword(password, 10);
+  const hash = await secure.hashPassword(password, 10);
+  return hash;
 };
 
 UserSchema.methods.validatePassword = async function (password: string) {
