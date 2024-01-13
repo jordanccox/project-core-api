@@ -3,6 +3,32 @@ import secure from '../security/secure';
 
 const { Schema } = mongoose;
 
+// Interfaces
+interface IUser {
+  name: string;
+  email: string;
+  hash: string;
+  address: string;
+  phone: string;
+  role: string;
+  title: string;
+  salary: number;
+  preferences: {
+    otp: {
+      type: boolean;
+    };
+  };
+  _id: string;
+}
+
+interface IUserMethods {
+  setPassword(password: string): void;
+  validatePassword(password: string): Promise<boolean>;
+}
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+type UserModel = mongoose.Model<IUser, {}, IUserMethods>;
+
 const UserSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, unique: true, lowercase: true, required: true }, // encrypt
@@ -13,7 +39,7 @@ const UserSchema = new Schema({
   title: String,
   salary: Number, // encrypt
   preferences: {
-    otp: { type: Boolean, default: false, verificationMethod: String },
+    otp: { type: Boolean },
   },
 });
 
@@ -27,6 +53,6 @@ UserSchema.methods.validatePassword = async function (password: string) {
   return authenticated;
 };
 
-const UserModel = mongoose.model('User', UserSchema);
+const User = mongoose.model<IUser, UserModel>('User', UserSchema);
 
-export default UserModel;
+export default User;

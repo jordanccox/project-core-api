@@ -2,7 +2,6 @@
 import passport = require('passport');
 import { Strategy as LocalStrategy } from 'passport-local';
 import UserModel from '../models/user';
-import { UserWithValidation } from '../types/user.interface';
 
 declare global {
   namespace Express {
@@ -30,7 +29,7 @@ passport.deserializeUser((user: Express.User, done) => {
 
 passport.use(
   new LocalStrategy(async (email, password, done) => {
-    const user = (await UserModel.findOne({ email })) as UserWithValidation;
+    const user = await UserModel.findOne({ email });
 
     if (!user) return done(null, false);
 
