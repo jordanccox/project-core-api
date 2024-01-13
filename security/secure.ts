@@ -1,7 +1,12 @@
 import crypto = require('crypto');
 import bcrypt = require('bcrypt');
 
-// Hash and salt passwords
+/**
+ * Hash and salt a user's password before storing hash in the database
+ * @param password user supplied password
+ * @param saltRounds
+ * @returns hashed password
+ */
 const hashPassword = async (
   password: string,
   saltRounds: number,
@@ -10,7 +15,13 @@ const hashPassword = async (
   const hash = await bcrypt.hash(password, salt);
   return hash;
 };
-// Validate passwords
+
+/**
+ * Validate password
+ * @param password user supplied password
+ * @param hash hashed password associated with user
+ * @returns Promise<boolean>
+ */
 const comparePasswords = async (
   password: string,
   hash: string,
@@ -18,9 +29,9 @@ const comparePasswords = async (
   const matchFound = await bcrypt.compare(password, hash);
   return matchFound;
 };
-// Encrypt data
+// Encrypt PII data
 
-// Decrypt data
+// Decrypt PII data
 
 // export
 

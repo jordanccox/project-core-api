@@ -25,7 +25,7 @@ app.use(
   }),
 );
 app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.session()); // requires session authentication for every route. Alternatively can be used as middleware on specific routes
 app.use(router);
 
 // Server setup

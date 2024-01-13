@@ -9,9 +9,12 @@ const UserSchema = new Schema({
   hash: String,
   address: { type: String, required: true }, // encrypt
   phone: { type: String, required: true }, // encrypt
-  role: { type: String, required: true },
-  title: String, // encrypt
+  role: { type: String, required: true }, // admin or user
+  title: String,
   salary: Number, // encrypt
+  preferences: {
+    otp: { type: Boolean, default: false, verificationMethod: String },
+  },
 });
 
 UserSchema.methods.setPassword = async function (password: string) {
