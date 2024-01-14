@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import User from '../models/user';
+import { sendOtp, verifyOtp } from '../services/twilio';
 
 /**
- * Log in to an existing account
+ * Logs user in to an existing account. If user has otp set to true, an otp will be sent via sms and the user will have to submit the otp code to log in
  * @param req Request object
  * @param res Response object
  * @param next NextFunction
@@ -16,7 +17,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   if (!user) {
     return res
       .status(401)
-      .json({ responseCode: res.statusCode, responseMessage: 'Unauthorized' });
+      .json({ responseCode: res.statusCode, responseBody: 'Unauthorized' });
   }
 
   const validPassword = await user.validatePassword(password);
@@ -24,13 +25,24 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   if (!validPassword) {
     return res
       .status(401)
-      .json({ responseCode: res.statusCode, responseMessage: 'Unauthorized' });
+      .json({ responseCode: res.statusCode, responseBody: 'Unauthorized' });
   }
 
   // Check if OTP is enabled
   if (user.preferences.otp) {
-    // call otp middleware
-    // initiate otp
+    const otpStatus = await sendOtp(user.phone);
+
+    if (otpStatus) {
+      return res.status(200).json({
+        responseCode: res.statusCode,
+        responseBody: 'OTP pending verification',
+      });
+    }
+
+    return res.status(500).json({
+      responseCode: res.statusCode,
+      responseBody: 'Internal server error',
+    });
   }
 
   req.session.regenerate((err: any) => {
@@ -47,6 +59,46 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
+/**
+ * OTP verification to log in
+ * @param req Request object
+ * @param res Response object
+ * @param next NextFunction
+ * @returns res
+ */
+const loginOtp = async (req: Request, res: Response, next: NextFunction) => {
+  const { otpCode, email } = req.body as { otpCode: string; email: string };
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res
+      .status(401)
+      .json({ responseCode: res.statusCode, responseBody: 'Unauthorized' });
+  }
+
+  const verified = await verifyOtp(user.phone, otpCode);
+
+  if (verified === 'approved') {
+    req.session.regenerate((err: any) => {
+      if (err) next(err);
+
+      req.session.user = { id: user._id, name: user.name };
+
+      req.session.save((error: any) => {
+        if (error) return next(error);
+        return res
+          .status(200)
+          .json({ responseCode: res.statusCode, responseBody: user });
+      });
+    });
+  } else {
+    return res
+      .status(401)
+      .json({ responseCode: res.statusCode, responseBody: 'Unauthorized' });
+  }
+};
+
 // sign up
 
 // require authentication middleware
@@ -55,4 +107,4 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
 // export
 
-export { login };
+export { login, loginOtp };
