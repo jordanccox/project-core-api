@@ -1,5 +1,5 @@
 import mongoose = require('mongoose');
-import secure from '../security/secure';
+import { hashPassword, comparePasswords } from '../security/secure';
 
 const { Schema } = mongoose;
 
@@ -44,13 +44,13 @@ const UserSchema = new Schema({
 });
 
 UserSchema.methods.setPassword = async function (password: string) {
-  const hash = await secure.hashPassword(password, 10);
+  const hash = await hashPassword(password, 10);
   return hash;
 };
 
 UserSchema.methods.validatePassword = async function (password: string) {
   const hash = this.hash as string;
-  const authenticated = await secure.comparePasswords(password, hash);
+  const authenticated = await comparePasswords(password, hash);
   return authenticated;
 };
 

@@ -35,9 +35,4 @@ const comparePasswords = async (
 
 // export
 
-const secure = {
-  hashPassword,
-  comparePasswords,
-};
-
-export default secure;
+export { hashPassword, comparePasswords };
