@@ -2,6 +2,7 @@ import { RequestHandler, Router } from 'express';
 import User from '../models/user';
 
 import authenticationController = require('../controllers/authentication');
+import { authenticateUser } from '../security/authMiddleware';
 
 const router = Router();
 
@@ -11,6 +12,11 @@ const router = Router();
 
 router.get('/', (req, res) => {
   res.type('json').send({ status: res.statusCode, message: 'Hello world!' });
+});
+
+router.get('/profile', authenticateUser, (req, res) => {
+  const { user } = req.session;
+  res.status(200).json({ message: 'success', user });
 });
 
 router.post('/login', authenticationController.login as RequestHandler);
@@ -38,11 +44,6 @@ router.get('/login', (req, res) => {
     </body>
     </html>`,
   );
-});
-
-router.get('/profile', (req, res) => {
-  const { user } = req.session;
-  res.status(200).json({ message: 'success', user });
 });
 
 router.get('/create-test-user', async (req, res) => {

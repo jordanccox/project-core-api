@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import User from '../models/user';
 
 /**
- * Login to a user account
+ * Log in to an existing account
  * @param req Request object
  * @param res Response object
  * @param next NextFunction
