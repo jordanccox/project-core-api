@@ -14,13 +14,22 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    return res.status(401).json('Unauthorized');
+    return res
+      .status(401)
+      .json({ responseCode: res.statusCode, responseMessage: 'Unauthorized' });
   }
 
   const validPassword = await user.validatePassword(password);
 
   if (!validPassword) {
-    return res.status(401).json('Unauthorized');
+    return res
+      .status(401)
+      .json({ responseCode: res.statusCode, responseMessage: 'Unauthorized' });
+  }
+
+  // Check if OTP is enabled
+  if (user.preferences.otp) { // call otp middleware
+    // initiate otp
   }
 
   req.session.regenerate((err: any) => {
@@ -30,7 +39,9 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
     req.session.save((error: any) => {
       if (error) return next(error);
-      return res.status(200).json(user);
+      return res
+        .status(200)
+        .json({ responseCode: res.statusCode, responseBody: user });
     });
   });
 };
