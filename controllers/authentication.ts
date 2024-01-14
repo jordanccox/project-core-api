@@ -28,7 +28,8 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   }
 
   // Check if OTP is enabled
-  if (user.preferences.otp) { // call otp middleware
+  if (user.preferences.otp) {
+    // call otp middleware
     // initiate otp
   }
 
