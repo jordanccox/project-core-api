@@ -12,13 +12,32 @@ router.get('/', (req, res) => {
   res.type('json').send({ status: res.statusCode, message: 'Hello world!' });
 });
 
-router.post(
-  '/login',
-  passport.authenticate('local', {
-    failureRedirect: '/login',
-  }) as RequestHandler,
-  (req, res) => res.redirect('/profile'),
-);
+router.post('/login', async (req, res, next) => {
+  const { email, password } = req.body as { email: string; password: string };
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(401).json('Unauthorized');
+  }
+
+  const validPassword = await user.validatePassword(password);
+
+  if (!validPassword) {
+    return res.status(401).json('Unauthorized');
+  }
+
+  req.session.regenerate((err: any) => {
+    if (err) next(err);
+
+    req.session.user = { id: user._id, name: user.name };
+
+    req.session.save((error: any) => {
+      if (error) return next(error);
+      return res.status(200).redirect('/profile');
+    });
+  });
+});
 
 router.get('/login', (req, res) => {
   res.type('html');
@@ -46,9 +65,8 @@ router.get('/login', (req, res) => {
 });
 
 router.get('/profile', (req, res) => {
-  const { user } = req;
-
-  res.send(user);
+  const { user } = req.session;
+  res.status(200).json({ message: 'success', user });
 });
 
 router.get('/create-test-user', async (req, res) => {
