@@ -9,14 +9,35 @@ const router = Router();
 /**
  * User authentication routes
  */
-router.post('/login', authenticationController.login);
-router.post('/login/verify-otp', authenticationController.loginOtp);
+router.post('/user/login', authenticationController.login);
+router.post('/user/login/verify-otp', authenticationController.loginOtp);
+router.post('/user/logout', authenticationController.logout);
 
 /**
  * TEST ROUTES BELOW
  */
 
-router.get('/login/verify-otp', (req, res) => {
+router.get('/user/logout', (req, res) => {
+  res.type('html');
+  res.send(
+    `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Logout</title>
+    </head>
+    <body>
+      <form method="post" action="/user/logout">
+
+        <button type="submit">Logout</button>
+      </form>
+    </body>
+    </html>`,
+  );
+});
+
+router.get('/user/login/verify-otp', (req, res) => {
   res.type('html');
   res.send(
     `<!DOCTYPE html>
@@ -27,7 +48,7 @@ router.get('/login/verify-otp', (req, res) => {
       <title>Login</title>
     </head>
     <body>
-      <form method="post" action="/login/verify-otp">
+      <form method="post" action="/user/login/verify-otp">
         <label>Email</label>
         <input type="text" name="email" />
         <br />
@@ -50,7 +71,7 @@ router.get('/profile', authenticateUser, (req, res) => {
   res.status(200).json({ message: 'success', user });
 });
 
-router.get('/login', (req, res) => {
+router.get('/user/login', (req, res) => {
   res.type('html');
   res.send(
     `<!DOCTYPE html>
@@ -61,7 +82,7 @@ router.get('/login', (req, res) => {
       <title>Login</title>
     </head>
     <body>
-      <form method="post" action="/login">
+      <form method="post" action="/user/login">
         <label>Email</label>
         <input type="text" name="email" />
         <br />

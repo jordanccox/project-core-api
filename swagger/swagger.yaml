@@ -1,0 +1,255 @@
+swagger: "2.0"
+info:
+  description: API for Project Core, a construction management application.
+  version: 1.0.0
+  title: Project Core API
+  contact:
+    email: jordan.c.cox.1@gmail.com
+host: localhost:8000
+basePath: /
+tags:
+- name: user
+  description: Establish a user session
+schemes:
+- http
+- https
+produces:
+- application/json
+security:
+- api_key: [] 
+paths:
+  /user/login:
+    post:
+      tags:
+      - user
+      summary: Log user in using email and password.
+      description: The `/user/login` endpoint establishes a user session by validating email and password. If the user has OTP enabled, this endpoint will send an OTP code to the phone number on record. To establish a session, the user's email and OTP code must be submitted to `/user/login/verify-otp`. 
+      parameters:
+      - name: credentials
+        description: User email and password
+        in: body
+        schema:
+          $ref: "#/definitions/Credentials"
+      responses:
+        default: 
+          description: User profile data
+          schema: 
+            $ref: "#/definitions/User"
+        200:
+          description: OTP pending verification
+        401:
+          description: Unauthorized
+    
+  /user/login/verify-otp:
+    post:
+      tags:
+      - user
+      summary: Establish a session using an email and OTP
+      description: This endpoint will only work after a user who has OTP enabled submits their email and password to the `/user/login` endpoint. That will send an OTP to the user's phone number. They must then submit their email and OTP code to `/user/login/verify-otp` to finish logging in.
+      parameters:
+        - name: otp
+          in: body
+          schema:
+            type: object
+            properties:
+              otpCode: 
+                type: string
+              email: 
+                type: string
+                format: email
+          required: true
+          description: OTP code and user email
+      responses:
+        200:
+          description: Product matching id.
+          schema:
+            $ref: "#/definitions/Product"
+        400:
+          description: Bad request
+        404: 
+          description: Product not found
+    delete:
+      tags:
+      - products
+      summary: Delete a product by id
+      parameters:
+      - name: productId
+        in: path
+        type: string
+        format: hexadecimal
+        required: true
+        description: Product _id property
+      responses:
+        200:
+          description: Product deleted
+          schema:
+            $ref: "#/definitions/Product"
+        400:
+          description: Bad request
+        404: 
+          description: Product not found
+  /products/{productId}/reviews:
+    get:
+      tags:
+      - products
+      summary: Return all reviews associated with product id
+      description: Retrieves a list of product reviews limited to 4 reviews per page.
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          format: hexadecimal
+          type: string
+          description: Product _id property
+        - name: page
+          in: query
+          required: false
+          type: number
+          format: int32
+          description: Page to retrieve. Defaults to 0 if query is missing.
+      responses:
+        200:
+          description: Array of reviews associated with productId.
+          schema:
+            $ref: "#/definitions/Review"
+    post:
+      tags:
+        - products
+      summary: Create a new review for a product in the database
+      description: Creates a new review and pushes it to the reviews array on the product matching the productId.
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          format: hexadecimal
+          type: string
+          description: Product _id property
+        - name: review
+          description: Review to add to product.
+          schema:
+            type: object
+            properties:
+              userName:
+                type: string
+              text: 
+                type: string
+              product:
+                type: string
+                format: hexadecimal
+                description: Product _id to push review to
+          required: true
+          in: body
+      responses:
+        200:
+          description: Review just created.
+          schema:
+            $ref: "#/definitions/Review"
+        400: 
+          description: Bad request
+        404:
+          description: Product not found
+  /reviews/{reviewId}:
+    delete:
+      tags:
+      - products
+      summary: Delete a review by id
+      parameters:
+      - name: reviewId
+        description: Review _id property
+        type: string
+        format: hexadecimal
+        required: true
+        in: path
+      responses:
+        200:
+          description: Review deleted
+          schema:
+            $ref: "#/definitions/Review"
+        400:
+          description: Bad request
+        404: 
+          description: Review not found
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "X-Authentication"
+    in: "header"
+definitions:
+  Credentials:
+    type: object
+    properties:
+      email:
+        type: string
+        format: email
+      password:
+        type: string
+        format: password
+  User:
+    type: object
+    properties:
+      name: 
+        type: string
+        format: name
+      email:
+        type: string
+        format: email
+      hash: 
+        type: string
+        format: hash
+      address:
+        type: string
+        format: address
+      phone:
+        type: string
+        format: phone
+      role: 
+        type: string
+        enum: [admin, user]
+      salary:
+        type: number
+      preferences:
+        type: object
+        properties:
+          otp:
+            type: boolean
+      _id:
+        type: string
+        format: hex
+  Product:
+    type: object
+    properties:
+      _id: 
+        type: string
+        description: MongoDB ObjectId
+      category:
+        type: string
+      name:
+        type: string
+        description: Product name
+      price:
+        type: integer
+        format: int32
+      image:
+        type: string
+        description: Product image URL
+      reviews:
+        type: array
+        items: 
+          type: string
+          description: Review _id
+          format: hexadecimal
+  Review:
+    type: object
+    properties:
+      _id: 
+        type: string
+        description: MongoDB ObjectId
+      userName:
+        type: string
+        description: User who left the review
+      text:
+        type: string
+      product: 
+        type: string
+        format: hexadecimal
+        description: _id of product review is about

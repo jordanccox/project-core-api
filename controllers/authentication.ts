@@ -99,6 +99,22 @@ const loginOtp = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+// logout
+const logout = (req: Request, res: Response, next: NextFunction) => {
+  req.session.user = null;
+  req.session.save((error: any) => {
+    if (error) next(error);
+
+    req.session.regenerate((err: any) => {
+      if (err) next(err);
+
+      return res.status(200).json({
+        responseCode: res.statusCode,
+        responseBody: 'User logged out successfully',
+      });
+    });
+  });
+};
 // sign up
 
 // require authentication middleware
@@ -107,4 +123,4 @@ const loginOtp = async (req: Request, res: Response, next: NextFunction) => {
 
 // export
 
-export { login, loginOtp };
+export { login, loginOtp, logout };

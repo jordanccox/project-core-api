@@ -12,7 +12,7 @@ const app = express();
 // Type declarations
 declare module 'express-session' {
   export interface SessionData {
-    user: { [key: string]: any };
+    user: { [key: string]: any } | null;
   }
 }
 
