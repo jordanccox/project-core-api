@@ -33,7 +33,7 @@ const UserSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, unique: true, lowercase: true, required: true }, // encrypt
   hash: String,
-  address: { type: String, required: true }, // encrypt
+  address: String, // encrypt
   phone: { type: String, required: true }, // encrypt
   role: { type: String, required: true }, // admin or user
   title: String,

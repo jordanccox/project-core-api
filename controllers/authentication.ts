@@ -2,6 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import User from '../models/user';
 import { sendOtp, verifyOtp } from '../services/twilio';
 
+interface SignupCredentials {
+  email: string;
+  name: string;
+  password: string;
+  phone: string;
+  role: 'admin' | 'user';
+}
+
 /**
  * Logs user in to an existing account. If user has otp set to true, an otp will be sent via sms and the user will have to submit the otp code to log in
  * @param req Request object
