@@ -12,6 +12,10 @@ const router = Router();
 router.post('/user/login', authenticationController.login);
 router.post('/user/login/verify-otp', authenticationController.loginOtp);
 router.post('/user/logout', authenticationController.logout);
+// /user/signup
+// /user/signup/verify-email-otp
+// /user/send-phone-otp
+// /user/verify-phone-otp
 
 /**
  * TEST ROUTES BELOW
