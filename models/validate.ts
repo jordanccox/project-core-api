@@ -4,6 +4,11 @@ import { CountryCode, isValidPhoneNumber } from 'libphonenumber-js';
 
 import { SignupCredentials } from '../controllers/authentication';
 
+/**
+ * Validates user object submitted during signup
+ * @param req Request object
+ * @returns boolean
+ */
 const validateUserSignupSchema = (req: Request) => {
   const { phone, address } = req.body as SignupCredentials;
 
@@ -14,7 +19,7 @@ const validateUserSignupSchema = (req: Request) => {
       .string()
       .pattern(
         // eslint-disable-next-line prettier/prettier
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/ // Require at least 8 characters, and combinations of uppercase, lowercase, digits, and non-alphanumeric characters
       )
       .required(),
     phone: joi.string().required(),
@@ -30,7 +35,7 @@ const validateUserSignupSchema = (req: Request) => {
     title: joi.string(),
     salary: joi.number(),
     preferences: joi.object({
-      otp: joi.string(),
+      otp: joi.boolean(),
     }),
     address: joi.object({
       streetAddress: joi.string(),
@@ -48,18 +53,49 @@ const validateUserSignupSchema = (req: Request) => {
 
   const isValidUser = userSignupSchema.validate(req.body);
 
-  if (!isValidUser) {
+  if (isValidUser.error) {
+    console.log(isValidUser.error);
     return false;
   }
 
-  const isValidNumber = isValidPhoneNumber(
-    phone,
-    address.country as CountryCode,
-  );
+  return validatePhoneNumber(phone, address.country as CountryCode);
+};
 
-  if (!isValidNumber) {
+/**
+ * Ensures phone number submitted in request is valid
+ * @param phone Phone number from req.body.phone
+ * @param countryCode Country code from req.body.address.country
+ * @returns boolean
+ */
+const validatePhoneNumber = (phone: string, countryCode: CountryCode) => {
+  const isValid = isValidPhoneNumber(phone, countryCode);
+
+  if (!isValid) {
     return false;
   }
 
   return true;
+};
+
+export { validateUserSignupSchema };
+
+// Test user
+const exampleUser = {
+  email: 'jordancox747@outlook.com',
+  name: 'Jordan Cox',
+  password: 'myPassword@123',
+  phone: '+19708892840',
+  role: 'admin',
+  title: 'Business Manager',
+  salary: '30',
+  preferences: {
+    otp: false,
+  },
+  address: {
+    streetAddress: '4412 E Mulberry St',
+    address2: 'Lot 286',
+    state: 'CO',
+    country: 'US',
+    zipCode: '80524',
+  },
 };
