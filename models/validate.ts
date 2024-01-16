@@ -2,7 +2,7 @@ import { Request } from 'express';
 import joi = require('joi');
 import { CountryCode, isValidPhoneNumber } from 'libphonenumber-js';
 
-import { SignupCredentials } from '../controllers/authentication';
+import { SignupCredentials } from '../types/user.interface';
 
 /**
  * Validates user object submitted during signup
@@ -79,23 +79,3 @@ const validatePhoneNumber = (phone: string, countryCode: CountryCode) => {
 
 export { validateUserSignupSchema };
 
-// Test user
-const exampleUser = {
-  email: 'jordancox747@outlook.com',
-  name: 'Jordan Cox',
-  password: 'myPassword@123',
-  phone: '+19708892840',
-  role: 'admin',
-  title: 'Business Manager',
-  salary: '30',
-  preferences: {
-    otp: false,
-  },
-  address: {
-    streetAddress: '4412 E Mulberry St',
-    address2: 'Lot 286',
-    state: 'CO',
-    country: 'US',
-    zipCode: '80524',
-  },
-};

@@ -1,39 +1,21 @@
 import mongoose = require('mongoose');
 import { hashPassword, comparePasswords } from '../security/secure';
+import { UserModel, IUser, IUserMethods } from '../types/user.interface';
 
 const { Schema } = mongoose;
-
-// Interfaces
-interface IUser {
-  name: string;
-  email: string;
-  hash: string;
-  address: string;
-  phone: string;
-  role: string;
-  title: string;
-  salary: number;
-  preferences: {
-    otp: {
-      type: boolean;
-    };
-  };
-  _id: string;
-}
-
-interface IUserMethods {
-  setPassword(password: string): Promise<string>;
-  validatePassword(password: string): Promise<boolean>;
-}
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-type UserModel = mongoose.Model<IUser, {}, IUserMethods>;
 
 const UserSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, unique: true, lowercase: true, required: true }, // encrypt
   hash: String,
-  address: String, // encrypt
+  address: {
+    streetAddress: String,
+    address2: String,
+    city: String,
+    state: String,
+    country: String, // two-letter iso code
+    zipCode: String,
+  }, // encrypt
   phone: { type: String, required: true }, // encrypt
   role: { type: String, required: true }, // admin or user
   title: String,
