@@ -33,6 +33,8 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
+    "joi": "^17.11.1",
+    "libphonenumber-js": "^1.10.53",
     "mongodb": "^6.3.0",
     "mongoose": "^8.0.4",
     "passport": "^0.7.0",

@@ -2,12 +2,25 @@ import { NextFunction, Request, Response } from 'express';
 import User from '../models/user';
 import { sendOtp, verifyOtp } from '../services/twilio';
 
-interface SignupCredentials {
+export interface SignupCredentials {
   email: string;
   name: string;
   password: string;
   phone: string;
   role: 'admin' | 'user';
+  title: string | null;
+  salary: number | null;
+  preferences: {
+    otp: boolean;
+  } | null;
+  address: {
+    streetAddress: string | null;
+    address2: string | null;
+    city: string | null;
+    state: string | null;
+    country: string; // two-letter iso code
+    zipCode: string | null;
+  };
 }
 
 /**
@@ -123,7 +136,9 @@ const logout = (req: Request, res: Response, next: NextFunction) => {
     });
   });
 };
-// sign up
+// ADMIN sign up
+
+// invitee (can be invited as a user or admin, but can't change role) sign up
 
 // require authentication middleware
 
