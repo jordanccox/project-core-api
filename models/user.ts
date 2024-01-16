@@ -7,6 +7,8 @@ const { Schema } = mongoose;
 const UserSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, unique: true, lowercase: true, required: true }, // encrypt
+  emailConfirmed: { type: Boolean, required: true },
+  phoneConfirmed: { type: Boolean, required: true },
   hash: String,
   address: {
     streetAddress: String,
@@ -26,14 +28,24 @@ const UserSchema = new Schema({
 });
 
 UserSchema.methods.setPassword = async function (password: string) {
-  const hash = await hashPassword(password, 10);
-  return hash;
+  try {
+    const hash = await hashPassword(password, 10);
+    return hash;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
 };
 
 UserSchema.methods.validatePassword = async function (password: string) {
-  const hash = this.hash as string;
-  const authenticated = await comparePasswords(password, hash);
-  return authenticated;
+  try {
+    const hash = this.hash as string;
+    const authenticated = await comparePasswords(password, hash);
+    return authenticated;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
 };
 
 const User = mongoose.model<IUser, UserModel>('User', UserSchema);

@@ -4,6 +4,8 @@ import mongoose = require('mongoose');
 interface IUser {
   name: string;
   email: string;
+  emailConfirmed: boolean;
+  phoneConfirmed: boolean;
   hash: string;
   address: {
     streetAddress: string | null;
@@ -21,7 +23,7 @@ interface IUser {
     otp: {
       type: boolean;
     };
-  };
+  } | null;
   _id: string;
 }
 

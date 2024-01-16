@@ -78,4 +78,3 @@ const validatePhoneNumber = (phone: string, countryCode: CountryCode) => {
 };
 
 export { validateUserSignupSchema };
-
