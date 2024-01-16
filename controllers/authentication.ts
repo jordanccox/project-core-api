@@ -110,7 +110,12 @@ const loginOtp = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-// logout
+/**
+ * End a user session
+ * @param req Request object
+ * @param res Response object
+ * @param next NextFunction
+ */
 const logout = (req: Request, res: Response, next: NextFunction) => {
   req.session.user = null;
   req.session.save((error: any) => {
@@ -126,7 +131,14 @@ const logout = (req: Request, res: Response, next: NextFunction) => {
     });
   });
 };
-// ADMIN sign up
+
+/**
+ * Sign up for first admin of a company account. Any further sign ups for the same company must be invited by the initial admin
+ * @param req Request object
+ * @param res Response object
+ * @param next NextFunction
+ * @returns JSON response
+ */
 const adminSignup = async (req: Request, res: Response, next: NextFunction) => {
   const validCredentials = validateUserSignupSchema(req);
 
@@ -185,9 +197,9 @@ const adminSignup = async (req: Request, res: Response, next: NextFunction) => {
 
 // invitee (can be invited as a user or admin, but can't change role) sign up
 
-// confirm email
+// confirm email -- twilio or nodemailer (put in separate file)
 
-// confirm phone number
+// confirm phone number -- twilio otp
 
 // logout
 
