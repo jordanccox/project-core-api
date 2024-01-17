@@ -1,6 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import User from '../models/user';
-import { sendOtp, verifyOtp } from '../services/twilio';
+import {
+  sendEmailOtp,
+  sendOtp,
+  verifyEmailOtp,
+  verifyOtp,
+} from '../services/twilio';
 import { validateUserSignupSchema } from '../models/validate';
 import { SignupCredentials } from '../types/user.interface';
 
@@ -170,12 +175,12 @@ const adminSignup = async (req: Request, res: Response, next: NextFunction) => {
       emailConfirmed: false, // need to confirm on first login
       phoneConfirmed: false,
       address: {
-        streetAddress: credentials.address.streetAddress,
-        address2: credentials.address.address2,
-        city: credentials.address.city,
-        state: credentials.address.state,
-        country: credentials.address.country,
-        zipCode: credentials.address.zipCode,
+        streetAddress: credentials.streetAddress,
+        address2: credentials.address2,
+        city: credentials.city,
+        state: credentials.state,
+        country: credentials.country,
+        zipCode: credentials.zipCode,
       },
       phone: credentials.phone,
       role: credentials.role,
@@ -188,8 +193,65 @@ const adminSignup = async (req: Request, res: Response, next: NextFunction) => {
 
     user.hash = await user.setPassword(credentials.password);
     await user.save();
+    const otpStatus = await sendEmailOtp(user.email);
+
+    if (otpStatus) {
+      return res.status(200).json({
+        responseCode: res.statusCode,
+        responseBody: 'Email pending verification',
+      });
+    }
+
+    return res.status(500).json({
+      responseCode: res.statusCode,
+      responseBody: 'Internal server error',
+    });
     // send OTP via email (need to write email otp function)
     // confirm email to finish setting up account -- after they set up account, they will be prompted to (optionally) set up OTP
+  } catch (err) {
+    next(err);
+  }
+};
+
+const confirmEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { otpCode, email } = req.body as { otpCode: string; email: string };
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(401)
+        .json({ responseCode: res.statusCode, responseBody: 'Unauthorized' });
+    }
+
+    const verified = await verifyEmailOtp(email, otpCode);
+
+    if (verified === 'approved') {
+      user.emailConfirmed = true;
+      await user.save();
+
+      req.session.regenerate((err: any) => {
+        if (err) next(err);
+
+        req.session.user = { id: user._id, name: user.name };
+
+        req.session.save((error: any) => {
+          if (error) return next(error);
+          return res
+            .status(200)
+            .json({ responseCode: res.statusCode, responseBody: user });
+        });
+      });
+    } else {
+      return res
+        .status(401)
+        .json({ responseCode: res.statusCode, responseBody: 'Unauthorized' });
+    }
   } catch (err) {
     next(err);
   }
@@ -205,4 +267,4 @@ const adminSignup = async (req: Request, res: Response, next: NextFunction) => {
 
 // export
 
-export { login, loginOtp, logout };
+export { login, loginOtp, logout, adminSignup, confirmEmail };

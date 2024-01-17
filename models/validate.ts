@@ -10,7 +10,7 @@ import { SignupCredentials } from '../types/user.interface';
  * @returns boolean
  */
 const validateUserSignupSchema = (req: Request) => {
-  const { phone, address } = req.body as SignupCredentials;
+  const { phone, country } = req.body as SignupCredentials;
 
   const userSignupSchema = joi.object({
     email: joi.string().email().required(),
@@ -37,18 +37,16 @@ const validateUserSignupSchema = (req: Request) => {
     preferences: joi.object({
       otp: joi.boolean(),
     }),
-    address: joi.object({
-      streetAddress: joi.string(),
-      address2: joi.string(),
-      city: joi.string(),
-      state: joi.string(),
-      country: joi
-        .string()
-        .length(2)
-        .pattern(/[a-zA-Z]+/)
-        .required(),
-      zipCode: joi.string().pattern(/\b(?!00000)\d{5}(?:-\d{4})?\b/),
-    }),
+    streetAddress: joi.string(),
+    address2: joi.string(),
+    city: joi.string(),
+    state: joi.string(),
+    country: joi
+      .string()
+      .length(2)
+      .pattern(/[a-zA-Z]+/)
+      .required(),
+    zipCode: joi.string().pattern(/\b(?!00000)\d{5}(?:-\d{4})?\b/),
   });
 
   const isValidUser = userSignupSchema.validate(req.body);
@@ -58,7 +56,7 @@ const validateUserSignupSchema = (req: Request) => {
     return false;
   }
 
-  return validatePhoneNumber(phone, address.country as CountryCode);
+  return validatePhoneNumber(phone, country as CountryCode);
 };
 
 /**

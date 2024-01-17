@@ -12,6 +12,11 @@ const router = Router();
 router.post('/user/login', authenticationController.login);
 router.post('/user/login/verify-otp', authenticationController.loginOtp);
 router.post('/user/logout', authenticationController.logout);
+router.post('/user/admin-signup/', authenticationController.adminSignup);
+router.post(
+  '/user/signup/verify-email-otp',
+  authenticationController.confirmEmail,
+);
 // /user/signup
 // /user/signup/verify-email-otp
 // /user/send-phone-otp
@@ -20,6 +25,63 @@ router.post('/user/logout', authenticationController.logout);
 /**
  * TEST ROUTES BELOW
  */
+
+router.get('/user/admin-signup', (req, res) => {
+  res.type('html');
+  res.send(
+    `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Admin Signup</title>
+    </head>
+    <body>
+      <form method="post" action="/user/admin-signup">
+        <label>Name</label>
+        <input type="text" name="name" />
+        <br />
+        <label>Email</label>
+        <input type="text" name="email" />
+        <br />
+        <label>Password</label>
+        <input type="password" name="password" />
+        <br />
+        <label>Street Address</label>
+        <input type="text" name="streetAddress" />
+        <br />
+        <label>Address 2</label>
+        <input type="text" name="address2" />
+        <br />
+        <label>City</label>
+        <input type="text" name="city" />
+        <br />
+        <label>State</label>
+        <input type="text" name="state" />
+        <br />
+        <label>2 Letter Country Code</label>
+        <input type="text" name="country" />
+        <br />
+        <label>Zip</label>
+        <input type="text" name="zipCode" />
+        <br />
+        <label>phone</label>
+        <input type="text" name="phone" />
+        <br />
+        <label>Role (admin | user)</label>
+        <input type="text" name="role" />
+        <br />
+        <label>Title</label>
+        <input type="text" name="title" />
+        <br />
+        <label>Salary</label>
+        <input type="text" name="salary" />
+        <button type="submit">Sign up</button>
+      </form>
+    </body>
+    </html>`,
+  );
+});
 
 router.get('/user/logout', (req, res) => {
   res.type('html');

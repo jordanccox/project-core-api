@@ -46,14 +46,12 @@ interface SignupCredentials {
   preferences: {
     otp: boolean;
   } | null;
-  address: {
-    streetAddress: string | null;
-    address2: string | null;
-    city: string | null;
-    state: string | null;
-    country: string; // two-letter iso code
-    zipCode: string | null;
-  };
+  streetAddress: string | null;
+  address2: string | null;
+  city: string | null;
+  state: string | null;
+  country: string; // two-letter iso code
+  zipCode: string | null;
 }
 
 export { UserModel, IUser, IUserMethods, SignupCredentials };

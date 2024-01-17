@@ -53,4 +53,46 @@ const verifyOtp = async (
   }
 };
 
-export { sendOtp, verifyOtp };
+/**
+ * Sends otp code for email verification
+ * @param email User email
+ * @returns Promise<string | null>
+ */
+const sendEmailOtp = async (email: string): Promise<string | null> => {
+  try {
+    const verification = await client.verify.v2
+      .services(verifySid)
+      .verifications.create({
+        to: email,
+        channel: 'email',
+      });
+    return verification.status;
+  } catch (err: any) {
+    console.log(err);
+    return null;
+  }
+};
+
+/**
+ * Verifies otp code sent to email
+ * @param email User email
+ * @param otpCode otp code sent to user's email
+ * @returns Promise<string | null>
+ */
+const verifyEmailOtp = async (
+  email: string,
+  otpCode: string,
+): Promise<string | null> => {
+  try {
+    const verificationCheck = await client.verify.v2
+      .services(verifySid)
+      .verificationChecks.create({ to: email, code: otpCode });
+
+    return verificationCheck.status;
+  } catch (err: any) {
+    console.log(err);
+    return null;
+  }
+};
+
+export { sendOtp, verifyOtp, sendEmailOtp, verifyEmailOtp };
