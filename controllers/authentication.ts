@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import _ = require('lodash');
 import User from '../models/user';
 import {
   sendEmailOtp,
@@ -158,9 +159,12 @@ const adminSignup = async (req: Request, res: Response, next: NextFunction) => {
   const { phone, email } = req.body as SignupCredentials;
 
   try {
-    const existingUser = await User.find({ $or: [{ email }, { phone }] });
+    const existingUser = await User.find({
+      $or: [{ email }, { phone }],
+    }); // issue
 
-    if (existingUser) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    if (!_.isEmpty(existingUser)) {
       return res.status(422).json({
         responseCode: res.statusCode,
         responseBody: 'Email or phone number is already in use.',
