@@ -217,6 +217,13 @@ const adminSignup = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+/**
+ * Verify OTP code sent upon account creation
+ * @param req Request object
+ * @param res Response object
+ * @param next NextFunction
+ * @returns JSON response
+ */
 const confirmEmail = async (
   req: Request,
   res: Response,
@@ -261,6 +268,61 @@ const confirmEmail = async (
   }
 };
 
+const resendOtp = async (req: Request, res: Response, next: NextFunction) => {
+  const { contactInfo, contactMethod } = req.body as {
+    contactInfo: string;
+    contactMethod: 'phone' | 'email';
+  };
+
+  try {
+    let user = null;
+
+    if (contactMethod === 'email') {
+      user = await User.findOne({ email: contactInfo });
+    } else {
+      user = await User.findOne({ phone: contactInfo });
+    }
+
+    if (!user) {
+      return res
+        .status(401)
+        .json({ responseCode: res.statusCode, responseBody: 'Unauthorized' });
+    }
+
+    if (contactMethod === 'phone') {
+      const otpStatus = await sendOtp(user.phone);
+
+      if (otpStatus) {
+        return res.status(200).json({
+          responseCode: res.statusCode,
+          responseBody: 'OTP pending verification',
+        });
+      }
+
+      return res.status(500).json({
+        responseCode: res.statusCode,
+        responseBody: 'Internal server error',
+      });
+    }
+
+    const otpStatus = await sendEmailOtp(user.email);
+
+    if (otpStatus) {
+      return res.status(200).json({
+        responseCode: res.statusCode,
+        responseBody: `OTP pending verification for ${user.email}`,
+      });
+    }
+
+    return res.status(500).json({
+      responseCode: res.statusCode,
+      responseBody: 'Internal server error',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // invitee (can be invited as a user or admin, but can't change role) sign up
 
 // confirm email -- twilio or nodemailer (put in separate file)
@@ -271,4 +333,4 @@ const confirmEmail = async (
 
 // export
 
-export { login, loginOtp, logout, adminSignup, confirmEmail };
+export { login, loginOtp, logout, adminSignup, confirmEmail, resendOtp };

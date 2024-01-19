@@ -17,6 +17,7 @@ router.post(
   '/user/signup/verify-email-otp',
   authenticationController.confirmEmail,
 );
+router.post('/user/resend-otp', authenticationController.resendOtp);
 // resend otp code function(contactInfo, 'email' | 'phone' )
 
 // /user/send-phone-otp confirmation
@@ -25,6 +26,31 @@ router.post(
 /**
  * TEST ROUTES BELOW
  */
+
+router.get('/user/resend-otp', (req, res) => {
+  res.type('html');
+  res.send(
+    `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Verify Email</title>
+    </head>
+    <body>
+      <form method="post" action="/user/resend-otp">
+        <label>Contact Info</label>
+        <input type="text" name="contactInfo" />
+        <br />
+        <label>Contact Method</label>
+        <input type="text" name="contactMethod" />
+
+        <button type="submit">Resend OTP</button>
+      </form>
+    </body>
+    </html>`,
+  );
+});
 
 router.get('/user/signup/verify-email-otp', (req, res) => {
   res.type('html');
