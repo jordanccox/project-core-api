@@ -18,10 +18,9 @@ router.post(
   authenticationController.confirmEmail,
 );
 router.post('/user/resend-otp', authenticationController.resendOtp);
-// resend otp code function(contactInfo, 'email' | 'phone' )
-
 // /user/send-phone-otp confirmation
 // /user/verify-phone-otp
+// /user/user-signup
 
 /**
  * TEST ROUTES BELOW

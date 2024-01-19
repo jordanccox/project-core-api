@@ -61,13 +61,11 @@ paths:
           description: OTP code and user email
       responses:
         200:
-          description: Product matching id.
+          description: User logged in
           schema:
-            $ref: "#/definitions/Product"
-        400:
-          description: Bad request
-        404: 
-          description: Product not found
+            $ref: "#/definitions/User"
+        401:
+          description: Unauthorized
     delete:
       tags:
       - products
