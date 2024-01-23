@@ -2,6 +2,7 @@ import { RequestHandler, Router } from 'express';
 import User from '../models/user';
 
 import authenticationController = require('../controllers/authentication');
+import companyController = require('../controllers/company');
 import { authenticateUser } from '../security/authMiddleware';
 
 const router = Router();
@@ -25,13 +26,43 @@ router.get('/user/resend-otp', authenticationController.resendOtp);
 /**
  * Company routes
  */
-router.post('/company/create-company', authenticateUser, );
+router.post(
+  '/company/create-company',
+  authenticateUser,
+  companyController.companyCreation,
+);
 
 // create a company -- admins only
+// invite team members to company -- admins only
 
 /**
  * TEST ROUTES BELOW
  */
+
+router.get('/company/create-company', (req, res) => {
+  res.type('html');
+  res.send(
+    `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Create Company</title>
+    </head>
+    <body>
+      <form method="post" action="/company/create-company">
+        <label>Company Name</label>
+        <input type="text" name="companyName" />
+        <br />
+        <label>country</label>
+        <input type="text" name="country" />
+
+        <button type="submit">Create Company</button>
+      </form>
+    </body>
+    </html>`,
+  );
+});
 
 router.get('/user/resend-otp-form', (req, res) => {
   res.type('html');

@@ -15,6 +15,8 @@ const CompanySchema = new Schema({
     zipCode: String,
   }, // encrypt
   phone: String, // encrypt
+  invitees: Array,
+  activeUsers: Array,
 });
 
 const Company = mongoose.model<ICompany, CompanyModel>(

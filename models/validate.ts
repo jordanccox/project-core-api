@@ -90,6 +90,8 @@ const validateCompanySchema = (req: Request) => {
       .required(),
     zipCode: joi.string().pattern(/\b(?!00000)\d{5}(?:-\d{4})?\b/),
     phone: joi.string(),
+    invitees: joi.array(),
+    activeUsers: joi.array(),
   });
 
   const isValidCompany = companyCreationSchema.validate(req.body);
