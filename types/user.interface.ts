@@ -24,6 +24,7 @@ interface IUser {
       type: boolean;
     };
   } | null;
+  company: string | null;
   _id: string;
 }
 
@@ -52,6 +53,7 @@ interface SignupCredentials {
   state: string | null;
   country: string; // two-letter iso code
   zipCode: string | null;
+  company: string | null;
 }
 
 export { UserModel, IUser, IUserMethods, SignupCredentials };

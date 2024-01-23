@@ -29,6 +29,7 @@ const comparePasswords = async (
   const matchFound = await bcrypt.compare(password, hash);
   return matchFound;
 };
+
 // Encrypt PII data
 
 // Decrypt PII data

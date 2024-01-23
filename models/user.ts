@@ -15,7 +15,7 @@ const UserSchema = new Schema({
     address2: String,
     city: String,
     state: String,
-    country: String, // two-letter iso code
+    country: { type: String, required: true }, // two-letter iso code
     zipCode: String,
   }, // encrypt
   phone: { type: String, required: true }, // encrypt
@@ -25,6 +25,7 @@ const UserSchema = new Schema({
   preferences: {
     otp: { type: Boolean },
   },
+  company: String,
 });
 
 UserSchema.methods.setPassword = async function (password: string) {

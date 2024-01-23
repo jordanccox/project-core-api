@@ -12,21 +12,28 @@ const router = Router();
 router.post('/user/login', authenticationController.login);
 router.post('/user/login/verify-otp', authenticationController.loginOtp);
 router.post('/user/logout', authenticationController.logout);
-router.post('/user/admin-signup/', authenticationController.adminSignup);
+router.post('/user/admin-signup', authenticationController.adminSignup);
+router.post('/user/user-signup', authenticationController.userSignup);
 router.post(
   '/user/signup/verify-email-otp',
   authenticationController.confirmEmail,
 );
-router.post('/user/resend-otp', authenticationController.resendOtp);
+router.get('/user/resend-otp', authenticationController.resendOtp);
 // /user/send-phone-otp confirmation
 // /user/verify-phone-otp
-// /user/user-signup
+
+/**
+ * Company routes
+ */
+router.post('/company/create-company', authenticateUser, );
+
+// create a company -- admins only
 
 /**
  * TEST ROUTES BELOW
  */
 
-router.get('/user/resend-otp', (req, res) => {
+router.get('/user/resend-otp-form', (req, res) => {
   res.type('html');
   res.send(
     `<!DOCTYPE html>
@@ -37,7 +44,7 @@ router.get('/user/resend-otp', (req, res) => {
       <title>Verify Email</title>
     </head>
     <body>
-      <form method="post" action="/user/resend-otp">
+      <form method="get" action="/user/resend-otp">
         <label>Contact Info</label>
         <input type="text" name="contactInfo" />
         <br />

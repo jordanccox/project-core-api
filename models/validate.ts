@@ -75,4 +75,31 @@ const validatePhoneNumber = (phone: string, countryCode: CountryCode) => {
   return true;
 };
 
-export { validateUserSignupSchema };
+// validate company credentials
+const validateCompanySchema = (req: Request) => {
+  const companyCreationSchema = joi.object({
+    companyName: joi.string().required(),
+    streetAddress: joi.string(),
+    address2: joi.string(),
+    city: joi.string(),
+    state: joi.string(),
+    country: joi
+      .string()
+      .length(2)
+      .pattern(/[a-zA-Z]+/)
+      .required(),
+    zipCode: joi.string().pattern(/\b(?!00000)\d{5}(?:-\d{4})?\b/),
+    phone: joi.string(),
+  });
+
+  const isValidCompany = companyCreationSchema.validate(req.body);
+
+  if (isValidCompany.error) {
+    console.log(isValidCompany.error);
+    return false;
+  }
+
+  return true;
+};
+
+export { validateUserSignupSchema, validateCompanySchema };

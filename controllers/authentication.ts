@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import _ = require('lodash');
 import User from '../models/user';
+import Company from '../models/company';
 import {
   sendEmailOtp,
   sendOtp,
@@ -161,7 +162,7 @@ const adminSignup = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const existingUser = await User.find({
       $or: [{ email }, { phone }],
-    }); // issue
+    });
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     if (!_.isEmpty(existingUser)) {
@@ -193,6 +194,7 @@ const adminSignup = async (req: Request, res: Response, next: NextFunction) => {
       preferences: {
         otp: credentials.preferences?.otp, // don't allow otp preference to be set until user confirms phone number
       },
+      company: null,
     });
 
     user.hash = await user.setPassword(credentials.password);
@@ -268,6 +270,13 @@ const confirmEmail = async (
   }
 };
 
+/**
+ * Resend otp to phone or email
+ * @param req Request object
+ * @param res Response object
+ * @param next NextFunction
+ * @returns JSON response
+ */
 const resendOtp = async (req: Request, res: Response, next: NextFunction) => {
   const { contactInfo, contactMethod } = req.body as {
     contactInfo: string;
@@ -324,13 +333,102 @@ const resendOtp = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 // invitee (can be invited as a user or admin, but can't change role) sign up
+const userSignup = async (req: Request, res: Response, next: NextFunction) => {
+  const validCredentials = validateUserSignupSchema(req);
 
-// confirm email -- twilio or nodemailer (put in separate file)
+  if (!validCredentials) {
+    return res.status(422).json({
+      responseCode: res.statusCode,
+      responseBody:
+        'Unable to process user credentials. Ensure credentials are entered correctly before trying again.',
+    });
+  }
 
-// confirm phone number -- twilio otp
+  const { phone, email, company } = req.body as SignupCredentials;
 
-// logout
+  try {
+    const existingUser = await User.find({
+      $or: [{ email }, { phone }],
+    });
 
-// export
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    if (!_.isEmpty(existingUser)) {
+      return res.status(422).json({
+        responseCode: res.statusCode,
+        responseBody: 'Email or phone number is already in use.',
+      });
+    }
 
-export { login, loginOtp, logout, adminSignup, confirmEmail, resendOtp };
+    // check if company exists
+    if (!company) {
+      return res.status(422).json({
+        responseCode: res.statusCode,
+        responseBody: 'Ensure company name is included with user credentials.',
+      });
+    }
+
+    const existingCompany = await Company.find({ companyName: company });
+
+    if (_.isEmpty(existingCompany)) {
+      return res.status(404).json({
+        responseCode: res.statusCode,
+        responseBody: 'Company not found.',
+      });
+    }
+
+    const credentials = req.body as SignupCredentials;
+
+    const user = new User({
+      name: credentials.name,
+      email: credentials.email,
+      emailConfirmed: false, // need to confirm on first login
+      phoneConfirmed: false,
+      address: {
+        streetAddress: credentials.streetAddress,
+        address2: credentials.address2,
+        city: credentials.city,
+        state: credentials.state,
+        country: credentials.country,
+        zipCode: credentials.zipCode,
+      },
+      phone: credentials.phone,
+      role: credentials.role,
+      title: credentials.title,
+      salary: credentials.salary,
+      preferences: {
+        otp: credentials.preferences?.otp, // don't allow otp preference to be set until user confirms phone number
+      },
+      company: credentials.company,
+    });
+
+    user.hash = await user.setPassword(credentials.password);
+    await user.save();
+    const otpStatus = await sendEmailOtp(user.email);
+
+    if (otpStatus) {
+      return res.status(200).json({
+        responseCode: res.statusCode,
+        responseBody: 'Email pending verification',
+      });
+    }
+
+    return res.status(500).json({
+      responseCode: res.statusCode,
+      responseBody: 'Internal server error',
+    });
+    // send OTP via email (need to write email otp function)
+    // confirm email to finish setting up account -- after they set up account, they will be prompted to (optionally) set up OTP
+  } catch (err) {
+    next(err);
+  }
+};
+
+export {
+  login,
+  loginOtp,
+  logout,
+  adminSignup,
+  confirmEmail,
+  resendOtp,
+  userSignup,
+};
