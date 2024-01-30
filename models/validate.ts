@@ -75,7 +75,11 @@ const validatePhoneNumber = (phone: string, countryCode: CountryCode) => {
   return true;
 };
 
-// validate company credentials
+/**
+ * Validates correct credentials present on request body to create a company profile
+ * @param req Request object
+ * @returns boolean
+ */
 const validateCompanySchema = (req: Request) => {
   const companyCreationSchema = joi.object({
     companyName: joi.string().required(),
@@ -104,4 +108,25 @@ const validateCompanySchema = (req: Request) => {
   return true;
 };
 
-export { validateUserSignupSchema, validateCompanySchema };
+// validate team member invite credentials
+const validateTeamMemberInvite = (req: Request) => {
+  const inviteSchema = joi.object({
+    name: joi.string().required(),
+    email: joi.string().email().required(),
+  });
+
+  const isValidInvite = inviteSchema.validate(req.body);
+
+  if (isValidInvite.error) {
+    console.log(isValidInvite.error);
+    return false;
+  }
+
+  return true;
+};
+
+export {
+  validateUserSignupSchema,
+  validateCompanySchema,
+  validateTeamMemberInvite,
+};

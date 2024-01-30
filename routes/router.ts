@@ -226,6 +226,7 @@ router.get('/profile', authenticateUser, (req, res) => {
 });
 
 router.get('/user/login', (req, res) => {
+  // mypassword
   res.type('html');
   res.send(
     `<!DOCTYPE html>

@@ -13,6 +13,8 @@ interface ICompany {
     zipCode: string | null;
   };
   phone: string | null;
+  invitees: Array<IUserInvitee> | null;
+  activeUsers: Array<string> | null;
   _id: string;
 }
 

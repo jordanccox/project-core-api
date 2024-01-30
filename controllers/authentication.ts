@@ -10,6 +10,7 @@ import {
 } from '../services/twilio';
 import { validateUserSignupSchema } from '../models/validate';
 import { SignupCredentials } from '../types/user.interface';
+import { CompanyModel, ICompany } from '../types/company.interface';
 
 /**
  * Logs user in to an existing account. If user has otp set to true, an otp will be sent via sms and the user will have to submit the otp code to log in
@@ -332,7 +333,13 @@ const resendOtp = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-// invitee (can be invited as a user or admin, but can't change role) sign up
+/**
+ * Team member sign up after receiving an invitation to join a company
+ * @param req Request object
+ * @param res Response object
+ * @param next NextFunction
+ * @returns JSON response
+ */
 const userSignup = async (req: Request, res: Response, next: NextFunction) => {
   const validCredentials = validateUserSignupSchema(req);
 
@@ -367,7 +374,9 @@ const userSignup = async (req: Request, res: Response, next: NextFunction) => {
       });
     }
 
-    const existingCompany = await Company.find({ companyName: company });
+    const existingCompany: ICompany = (await Company.findOne({
+      companyName: company,
+    })) as ICompany;
 
     if (_.isEmpty(existingCompany)) {
       return res.status(404).json({
@@ -377,6 +386,17 @@ const userSignup = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const credentials = req.body as SignupCredentials;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const userIsInvited = existingCompany.invitees?.find(
+      (invitee) => invitee.email === credentials.email,
+    );
+
+    if (!userIsInvited) {
+      return res
+        .status(401)
+        .json({ responseCode: res.statusCode, responseBody: 'Unauthorized' });
+    }
 
     const user = new User({
       name: credentials.name,
