@@ -10,7 +10,7 @@ import {
 } from '../services/twilio';
 import { validateUserSignupSchema } from '../models/validate';
 import { SignupCredentials } from '../types/user.interface';
-import { CompanyModel, ICompany } from '../types/company.interface';
+import { ICompany } from '../types/company.interface';
 
 /**
  * Logs user in to an existing account. If user has otp set to true, an otp will be sent via sms and the user will have to submit the otp code to log in
