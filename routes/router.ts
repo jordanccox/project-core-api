@@ -31,6 +31,11 @@ router.post(
   authenticateUser,
   companyController.companyCreation,
 );
+router.post(
+  '/company/invite-team-member',
+  authenticateUser,
+  companyController.inviteTeamMember,
+);
 
 // create a company -- admins only
 // invite team members to company -- admins only
@@ -38,6 +43,31 @@ router.post(
 /**
  * TEST ROUTES BELOW
  */
+
+router.get('/company/invite-team-member', (req, res) => {
+  res.type('html');
+  res.send(
+    `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Invite Team Member</title>
+    </head>
+    <body>
+      <form method="post" action="/company/invite-team-member">
+        <label>Team Member Name</label>
+        <input type="text" name="name" />
+        <br />
+        <label>Team Member Email</label>
+        <input type="text" name="email" />
+
+        <button type="submit">Invite</button>
+      </form>
+    </body>
+    </html>`,
+  );
+});
 
 router.get('/company/create-company', (req, res) => {
   res.type('html');

@@ -7,7 +7,11 @@ import {
   validateCompanySchema,
   validateTeamMemberInvite,
 } from '../models/validate';
-import { CompanySignupCredentials } from '../types/company.interface';
+import {
+  CompanySignupCredentials,
+  IUserInvitee,
+} from '../types/company.interface';
+import { sendInvite } from '../services/nodemailer';
 
 /**
  * Create a new company. The user to create the company must be an admin.
@@ -83,6 +87,10 @@ const companyCreation = async (
 
     await company.save();
 
+    user.company = company.companyName;
+
+    await user.save();
+
     return res.status(200).json({
       responseCode: res.statusCode,
       responseBody: 'Company created successfully.',
@@ -120,6 +128,16 @@ const inviteTeamMember = async (
         .json({ responseCode: res.statusCode, responseMessage: 'Forbidden' });
     }
 
+    const company = await Company.findOne({ companyName: user.company });
+
+    if (_.isEmpty(company)) {
+      return res.status(422).json({
+        responseCode: res.statusCode,
+        responseBody:
+          'Unable to process request. Ensure you have created a company before attempting to invite team members.',
+      });
+    }
+
     const validInvite = validateTeamMemberInvite(req);
 
     if (!validInvite) {
@@ -129,6 +147,37 @@ const inviteTeamMember = async (
           'Unable to process invite. Ensure invite fields are entered correctly before trying again.',
       });
     }
+
+    const invitee: IUserInvitee = {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      name: req.body.name,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      email: req.body.email,
+      accepted: false,
+    };
+
+    const emailSent = await sendInvite(invitee, company.companyName);
+
+    if (!emailSent) {
+      return res.status(500).json({
+        responseCode: res.statusCode,
+        responseBody: 'Internal server error',
+      });
+    }
+
+    // add invitee to company
+
+    const updatedInviteeList = company.invitees ? company.invitees : [];
+
+    updatedInviteeList.push(invitee);
+
+    company.invitees = updatedInviteeList;
+    await company.save();
+
+    return res.status(200).json({
+      responseCode: res.statusCode,
+      responseBody: `Invitation sucessfully sent to ${invitee.name} at ${invitee.email}`,
+    });
   } catch (err) {
     next(err);
   }
@@ -140,4 +189,4 @@ const inviteTeamMember = async (
 
 // delete company
 
-export { companyCreation };
+export { companyCreation, inviteTeamMember };

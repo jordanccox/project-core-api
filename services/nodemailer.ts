@@ -17,25 +17,34 @@ const sendInvite = async (
   invitee: { email: string; name: string },
   companyName: string,
 ) => {
-  const info = await transporter.sendMail({
-    from: '"Project Core" <noreply@projectcore.co>',
-    to: invitee.email,
-    subject: `You've been invited to join ${companyName}'s Project Core team`,
-    text: `Hello, ${invitee.name}, you've beeen invited to join ${companyName} on Project Core [insert link here]. Click here and follow the instructions on the web page.`,
-    html: `<p>Hello, ${invitee.name}, you've beeen invited to join ${companyName} on Project Core [insert link here]. Click here and follow the instructions on the web page.</p>`, // eventually insert link for them to click
-  });
+  try {
+    const info = await transporter.sendMail({
+      from: '"Project Core" <noreply@projectcore.co>',
+      to: invitee.email,
+      subject: `You've been invited to join ${companyName}'s Project Core team`,
+      text: `Hello, ${invitee.name}, you've beeen invited to join ${companyName} on Project Core [insert link here]. Click here and follow the instructions on the web page.`,
+      html: `<p>Hello, ${invitee.name}, you've beeen invited to join ${companyName} on Project Core [insert link here]. Click here and follow the instructions on the web page.</p>`, // eventually insert link for them to click
+    });
+
+    return info;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
 };
 
-async function main() {
-  const info = await transporter.sendMail({
-    from: '"Jordan Cox" <noreply@projectcore.co>',
-    to: 'jordancox747@outlook.com',
-    subject: 'HEllo',
-    text: 'Hello world',
-    html: '<b>Hello world</b>',
-  });
+export { sendInvite };
 
-  console.log('Message sent: %s', info.messageId);
-}
+// async function main() {
+//   const info = await transporter.sendMail({
+//     from: '"Jordan Cox" <noreply@projectcore.co>',
+//     to: 'jordancox747@outlook.com',
+//     subject: 'HEllo',
+//     text: 'Hello world',
+//     html: '<b>Hello world</b>',
+//   });
 
-main().catch(console.error);
+//   console.log('Message sent: %s', info.messageId);
+// }
+
+// main().catch(console.error);

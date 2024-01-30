@@ -41,4 +41,4 @@ interface CompanySignupCredentials {
 // eslint-disable-next-line @typescript-eslint/ban-types
 type CompanyModel = mongoose.Model<ICompany>;
 
-export { CompanyModel, ICompany, CompanySignupCredentials };
+export { CompanyModel, ICompany, CompanySignupCredentials, IUserInvitee };
