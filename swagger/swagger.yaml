@@ -66,6 +66,87 @@ paths:
             $ref: "#/definitions/User"
         401:
           description: Unauthorized
+    
+  /user/logout:
+    post:
+      tags:
+      - user
+      summary: Log the user out
+      description: Ends the current user session, clearing session data and regenerating the session ID.
+      responses:
+        200:
+          description: Successful logout
+          schema:
+            type: object
+            properties:
+              responseCode:
+                type: integer
+                example: 200
+              responseBody:
+                type: string
+                example: 'User logged out successfully'
+        500:
+          description: Internal Server Error
+    
+  /phone/send-otp:
+    post:
+      tags:
+        - phone
+      summary: Send OTP to user's phone
+      description: Initiates the phone number verification process by sending an OTP code to the provided phone number.
+      parameters:
+        - name: phone
+          in: body
+          required: true
+          schema: 
+            type: string
+            format: phone  # Example: +12345678901
+      responses:
+        200:
+          description: OTP code sent successfully
+          schema: 
+            type: object
+            properties:
+              message:
+                type: string
+                example: "OTP code sent"
+        400:
+          description: Invalid phone number
+        500:
+          description: Internal Server Error
+
+  /phone/verify:
+    post:
+      tags:
+        - phone
+      summary: Verify user's phone number
+      description: Verifies the OTP code provided by the user and updates the user's record if successful.
+      parameters:
+        - name: otp
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              phone:
+                type: string
+                format: phone  # Example: +12345678901
+              otpCode:
+                type: string
+      responses:
+        200:
+          description: Phone number verified successfully
+          schema: 
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Phone number verified"
+        400:
+          description: Invalid phone number or OTP
+        500:
+          description: Internal Server Error      
+    
     delete:
       tags:
       - products

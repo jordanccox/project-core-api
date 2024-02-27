@@ -2,6 +2,7 @@ import { RequestHandler, Router } from 'express';
 import User from '../models/user';
 
 import authenticationController = require('../controllers/authentication');
+import profileController = require('../controllers/profile');
 import companyController = require('../controllers/company');
 import { authenticateUser } from '../security/authMiddleware';
 
@@ -14,14 +15,24 @@ router.post('/user/login', authenticationController.login);
 router.post('/user/login/verify-otp', authenticationController.loginOtp);
 router.post('/user/logout', authenticationController.logout);
 router.post('/user/admin-signup', authenticationController.adminSignup);
-router.post('/user/user-signup', authenticationController.userSignup);
+router.post('/user/user-signup', authenticationController.userSignup); // TODO: TEST USER SIGNUP ROUTE
 router.post(
   '/user/signup/verify-email-otp',
   authenticationController.confirmEmail,
 );
 router.get('/user/resend-otp', authenticationController.resendOtp);
 // /user/send-phone-otp confirmation
+router.post(
+  '/user/confirm-phone/send-otp',
+  authenticateUser,
+  profileController.sendPhoneOtp,
+);
 // /user/verify-phone-otp
+router.post(
+  '/user/confirm-phone/verify-otp',
+  authenticateUser,
+  profileController.verifyPhoneOtp,
+);
 
 /**
  * Company routes
@@ -43,6 +54,50 @@ router.post(
 /**
  * TEST ROUTES BELOW
  */
+
+router.get('/send-phone-otp', (req, res) => {
+  res.type('html');
+  res.send(
+    `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Confirm Phone Number</title>
+    </head>
+    <body>
+      <form method="post" action="/user/confirm-phone/send-otp">
+        <button type="submit">Confirm Phone</button>
+      </form>
+    </body>
+    </html>`,
+  );
+});
+
+router.get('/verify-phone-otp', (req, res) => {
+  res.type('html');
+  res.send(
+    `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Verify OTP to Confirm Phone Number</title>
+    </head>
+    <body>
+    <form method="post" action="/user/confirm-phone/verify-otp">
+    <label>Phone</label>
+    <input type="text" name="phone" />
+    <br />
+    <label>OTP</label>
+    <input type="text" name="otpCode" />
+
+    <button type="submit">Verify</button>
+    </form>
+    </body>
+    </html>`,
+  );
+});
 
 router.get('/company/invite-team-member', (req, res) => {
   res.type('html');
