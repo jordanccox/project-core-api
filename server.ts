@@ -17,7 +17,7 @@ declare module 'express-session' {
 }
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:5500', credentials: true }));
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(
